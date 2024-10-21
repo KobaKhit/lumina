@@ -1,0 +1,152 @@
+{% extends "coderedcms/blocks/base_block.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+{% block block_render %}
+<div class="glide-wrapper" id="glide-wrapper-{{self.carousel.id}}">
+  <div class="glide" id="glide-{{self.carousel.id}}">
+    <div class="glide__track" data-glide-el="track">
+      <ul class="glide__slides">
+        {% for item in self.carousel.carousel_slides.all %}
+        <li class="glide__slide {% if not item.image %}no-img{% endif %} {{item.custom_css_class}}"
+            {% if item.custom_id %}id="{{item.custom_id}}"{% endif %}
+            style="{% if item.background_color %}background-color: {{item.background_color}};{% endif %}">
+          {% if item.image %}
+          {% image item.image fill-400x300 format-webp preserve-svg as carouselimage %}
+          <img class="d-block w-100" src="{{carouselimage.url}}" alt="{{carouselimage.image.title}}">
+          {% endif %}
+          <div class="carousel-caption d-none d-md-block">
+            {% for block in item.content %}
+            {% include_block block %}
+            {% endfor %}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% if self.carousel.show_indicators %}
+    <div class="glide__bullets" data-glide-el="controls[nav]">
+      {% for item in self.carousel.carousel_slides.all %}
+      <button class="glide__bullet" data-glide-dir="={{forloop.counter0}}"></button>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% if self.carousel.show_controls %}
+  <div class="glide__arrows" data-glide-el="controls">
+    <button class="glide__arrow glide__arrow--left" data-glide-dir="<">&lt;</button>
+    <button class="glide__arrow glide__arrow--right" data-glide-dir=">">&gt;</button>
+  </div>
+  {% endif %}
+</div>
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.5.0/glide.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const glideWrapper = document.getElementById('glide-wrapper-{{self.carousel.id}}');
+    const glide = new Glide('#glide-{{self.carousel.id}}', {
+      type: 'slider',
+      startAt: 0,
+      perView: 3,
+      gap: 50,
+      bound: true,
+      peek: { before: 0, after: 75 },
+      breakpoints: {
+        992: {
+          perView: 2
+        },
+        576: {
+          perView: 1
+        }
+      },
+      autoplay: 5000,
+    });
+
+    glide.mount();
+
+    // Manually bind click events to arrows
+    const leftArrow = glideWrapper.querySelector('.glide__arrow--left');
+    const rightArrow = glideWrapper.querySelector('.glide__arrow--right');
+
+    if (leftArrow) {
+      leftArrow.addEventListener('click', () => glide.go('<'));
+    }
+    if (rightArrow) {
+      rightArrow.addEventListener('click', () => glide.go('>'));
+    }
+  });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.5.0/css/glide.core.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.5.0/css/glide.theme.min.css">
+<style>
+  .glide-wrapper {
+    position: relative;
+    padding: 0 40px;
+  }
+  .glide__slide {
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #f0f0f0;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+  }
+  .glide__slide:hover {
+    transform: scale(1.05);
+    z-index: 1;
+  }
+  .glide__slide img {
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  .glide__slide:hover img {
+    transform: scale(1.1);
+    filter: brightness(0.5);
+  }
+  .carousel-caption {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    display: block;
+    text-overflow: ellipsis;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .glide__slide:hover .carousel-caption {
+    opacity: 1;
+    
+  }
+  .glide__arrows {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+  }
+  .glide__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border-color: none;
+    color: black;
+    /* text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000; */
+    pointer-events: auto;
+    z-index: 2;
+  }
+  .glide__arrow--left {
+    left: -20px;
+  }
+  .glide__arrow--right {
+    right: -20px;
+  }
+</style>
+{% endblock %}
+{% endblock %}

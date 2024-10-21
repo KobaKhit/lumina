@@ -1,0 +1,83 @@
+
+<!-- simple tableau embed -->
+<style>
+    #vizContainer {
+        width: 800px;
+        height: 600px;
+    }
+</style>
+<script type="text/javascript" src="https://public.tableau.com/javascripts/api/tableau-2.9.2.min.js"></script>
+<div id="vizContainer"></div>
+<script type="text/javascript">
+    function initViz() {
+        var containerDiv = document.getElementById("vizContainer");
+        var url = 'https://dwhtab.nba.com/t/Site03/views/NBAIDDashboard/ExecutiveSummary';
+        var options = {
+            hideTabs: true,
+            onFirstInteractive: function() {
+                console.log("Visualization is interactive!");
+            }
+        };
+        var viz = new tableau.Viz(containerDiv, url, options);
+    }
+
+    document.addEventListener("DOMContentLoaded", initViz);
+</script>
+
+<!-- with scaling -->
+<script type="text/javascript" src="https://public.tableau.com/javascripts/api/tableau-2.9.2.min.js"></script>
+<style>
+    #vizContainer {
+        width: 100%;
+        height: 100%;
+        /* max-width: 1200px; Set to the original width of your dashboard */
+        margin: 0 auto;
+    }
+    /* iframe {display: block; margin:0 auto} */
+</style>
+<div id="vizContainer">
+</div>
+
+    <script type="text/javascript">
+        var viz;
+        var vizContainer = document.getElementById("vizContainer");
+        var url = 'https://dwhtab.nba.com/t/Site03/views/NBAIDDashboard/ExecutiveSummary';
+        var originalWidth = window.innerWidth; // Set this to your dashboard's original width
+        var originalHeight = 1000; // Set this to your dashboard's original height
+        vizContainer.style.maxWidth = originalWidth + "px";
+        vizContainer.style.height = originalHeight + "px";
+
+        function initViz() {
+            var options = {
+                hideTabs: true,
+                // width: "100%",
+                // height: "100%",
+                toolbar: 'hidden',
+                onFirstInteractive: function() {
+                    console.log("Visualization is interactive!");
+                    scaleViz();
+                }
+            };
+            viz = new tableau.Viz(vizContainer, url, options);
+            // console.log(viz.getWorkbook())
+        }
+
+        function scaleViz() {
+            var containerWidth = vizContainer.offsetWidth;
+            var scalingFactor = containerWidth / originalWidth;
+            console.log("Scaling factor: " + scalingFactor + "; Container width: " + containerWidth);
+
+
+            // if (scalingFactor > 1) {
+            //     scalingFactor = 1; // Prevent scaling up
+            // }
+
+            vizContainer.style.transform = "scale(" + scalingFactor + ")";
+            vizContainer.style.transformOrigin = "top left";
+            vizContainer.style.height = (originalHeight * scalingFactor) + "px";
+       
+        }
+
+        window.addEventListener('resize', scaleViz);
+        document.addEventListener("DOMContentLoaded", initViz);
+    </script>
